@@ -9,6 +9,7 @@
 
 # include <stdio.h>
 # include <stdlib.h>
+# include <string.h>
 
 struct noArvore
 {
@@ -18,6 +19,7 @@ struct noArvore
 };
 
 typedef struct noArvore* arvoreBinaria; // Definindo um ponteiro para a raiz da árvore
+typedef struct noArvore noArvore; // Definindo um nó da árvore
 
 /*
     Função para criar a árvore binária
@@ -120,11 +122,11 @@ noArvore *buscarNo(arvoreBinaria *raiz, int dado){
     return NULL;
 }
 
-int excluirNo(arvoreBinaria *raiz, int dado){
+int excluirNo(arvoreBinaria *raiz, int dado){ // Precisa ser refatorado, algum nó esta perdendo referencia
     if(raiz == NULL){
         return 0;
     }
-    noArvore *noAtual = encontrarNo(raiz, dado);
+    noArvore *noAtual = buscarNo(raiz, dado);
     if(noAtual == NULL){
         return 0;
     }
@@ -134,7 +136,85 @@ int excluirNo(arvoreBinaria *raiz, int dado){
     if(noAtual->filhoEsquerda == NULL){
         filho = noAtual->filhoDireita;
         }else if(noAtual->filhoDireita == NULL){
-            
+            filho = noAtual->filhoEsquerda;
+        }else{
+            pai = noAtual;
+            filho = noAtual->filhoEsquerda;
+            while(filho->filhoDireita != NULL){
+                pai = filho;
+                filho = filho->filhoDireita;
+            }
+            if(pai != noAtual){
+                pai->filhoDireita = filho->filhoEsquerda;
+                filho->filhoEsquerda = noAtual->filhoEsquerda;
+            }
+            filho->filhoDireita = noAtual->filhoDireita;
+        }
+        if(pai == NULL){
+            free(noAtual);
+            *raiz = filho;
+        }else{
+            if(noAtual == pai->filhoDireita){
+                pai->filhoDireita = filho;
+            }else{
+                pai->filhoEsquerda = filho;
+            }
+            free(noAtual);
+        }
+        return 1;       
+        
+}
+
+void imprimeArvorePreOrdem(noArvore *raiz){
+    if(raiz != NULL){
+        printf("%d ", raiz->dado);
+        imprimeArvorePreOrdem(raiz->filhoEsquerda);
+        imprimeArvorePreOrdem(raiz->filhoDireita);
+    }
+}
+
+
+int main(void){
+    arvoreBinaria *raiz = criarArvoreBinaria();
+    inserirNo(raiz, 10);
+    inserirNo(raiz, 5);
+    inserirNo(raiz, 15);
+    inserirNo(raiz, 3);
+    inserirNo(raiz, 7);
+    inserirNo(raiz, 12);
+    inserirNo(raiz, 20);
+    inserirNo(raiz, 1);
+    inserirNo(raiz, 4);
+    inserirNo(raiz, 6);
+    inserirNo(raiz, 8);
+    imprimeArvorePreOrdem(*raiz);
+    printf("\n");
+    inserirNo(raiz, 11);
+    inserirNo(raiz, 13);
+    inserirNo(raiz, 18);
+    inserirNo(raiz, 25);
+    inserirNo(raiz, 2);
+    inserirNo(raiz, 9);
+    inserirNo(raiz, 14);
+    inserirNo(raiz, 17);
+    inserirNo(raiz, 19);
+    inserirNo(raiz, 24);
+    inserirNo(raiz, 26);
+
+    imprimeArvorePreOrdem(*raiz);
+    printf("\n");
+
+    noArvore *no = buscarNo(raiz, 15);
+    if(no != NULL){
+        printf("Nó encontrado: %d\n", no->dado);
+    }else{
+        printf("Nó não encontrado.\n");
     }
     
+    excluirNo(raiz,15);
+    imprimeArvorePreOrdem(*raiz);
+    printf("\n");
+
+    return 0;
 }
+    
