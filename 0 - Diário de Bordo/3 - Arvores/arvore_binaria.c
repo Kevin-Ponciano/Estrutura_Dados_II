@@ -7,9 +7,9 @@
 // Pesquisa de um elemento na árvore;
 // Exclusão de um elemento na árvore.
 
-# include <stdio.h>
-# include <stdlib.h>
-# include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 struct noArvore
 {
@@ -18,17 +18,19 @@ struct noArvore
     struct noArvore *filhoDireita;
 };
 
-typedef struct noArvore* arvoreBinaria; // Definindo um ponteiro para a raiz da árvore
-typedef struct noArvore noArvore; // Definindo um nó da árvore
+typedef struct noArvore *arvoreBinaria; // Definindo um ponteiro para a raiz da árvore
+typedef struct noArvore noArvore;       // Definindo um nó da árvore
 
 /*
     Função para criar a árvore binária
     Retorno:
         - Ponteiro para a raiz da árvore
 */
-arvoreBinaria *criarArvoreBinaria(){
-    arvoreBinaria *raiz = (arvoreBinaria*) malloc(sizeof(arvoreBinaria));
-    if(raiz != NULL){
+arvoreBinaria *criarArvoreBinaria()
+{
+    arvoreBinaria *raiz = (arvoreBinaria *)malloc(sizeof(arvoreBinaria));
+    if (raiz != NULL)
+    {
         *raiz = NULL;
     }
     return raiz;
@@ -41,9 +43,11 @@ arvoreBinaria *criarArvoreBinaria(){
     Retorno:
         - Ponteiro para o nó criado
 */
-noArvore *criarNo(int dado){
-    noArvore *novoNo = (noArvore*) malloc(sizeof(noArvore));
-    if(novoNo == NULL){
+noArvore *criarNo(int dado)
+{
+    noArvore *novoNo = (noArvore *)malloc(sizeof(noArvore));
+    if (novoNo == NULL)
+    {
         printf("Erro: Falha ao alocar memória para o novo nó.\n");
         exit(-1);
     }
@@ -63,31 +67,44 @@ noArvore *criarNo(int dado){
         - 0: falha ao inserir o nó
 */
 
-int inserirNo(arvoreBinaria *raiz, int dado){
-    if(raiz == NULL){
+int inserirNo(arvoreBinaria *raiz, int dado)
+{
+    if (raiz == NULL)
+    {
         return 0;
     }
     noArvore *novoNo = criarNo(dado);
-    if(*raiz == NULL){ // Se a árvore estiver vazia o novo nó será a raiz
+    if (*raiz == NULL)
+    { // Se a árvore estiver vazia o novo nó será a raiz
         *raiz = novoNo;
-    }else{
+    }
+    else
+    {
         noArvore *atual = *raiz;
         noArvore *anterior = NULL;
-        while(atual != NULL){
+        while (atual != NULL)
+        {
             anterior = atual;
-            if(dado == atual->dado){
+            if (dado == atual->dado)
+            {
                 free(novoNo);
                 return 0;
             }
-            if(dado > atual->dado){
+            if (dado > atual->dado)
+            {
                 atual = atual->filhoDireita;
-            }else{
+            }
+            else
+            {
                 atual = atual->filhoEsquerda;
             }
         }
-        if(dado > anterior->dado){
+        if (dado > anterior->dado)
+        {
             anterior->filhoDireita = novoNo;
-        }else{
+        }
+        else
+        {
             anterior->filhoEsquerda = novoNo;
         }
     }
@@ -104,77 +121,141 @@ int inserirNo(arvoreBinaria *raiz, int dado){
         - NULL: nó não encontrado
 */
 
-noArvore *buscarNo(arvoreBinaria *raiz, int dado){
-    if(raiz == NULL){
+noArvore *buscarNo(arvoreBinaria *raiz, int dado)
+{
+    if (raiz == NULL)
+    {
         return NULL;
     }
     noArvore *atual = *raiz;
-    while(atual != NULL){
-        if(dado == atual->dado){
+    while (atual != NULL)
+    {
+        if (dado == atual->dado)
+        {
             return atual;
         }
-        if(dado > atual->dado){
+        if (dado > atual->dado)
+        {
             atual = atual->filhoDireita;
-        }else{
+        }
+        else
+        {
             atual = atual->filhoEsquerda;
         }
     }
     return NULL;
 }
 
-int excluirNo(arvoreBinaria *raiz, int dado){ // Precisa ser refatorado, algum nó esta perdendo referencia
-    if(raiz == NULL){
-        return 0;
-    }
-    noArvore *noAtual = buscarNo(raiz, dado);
-    if(noAtual == NULL){
-        return 0;
-    }
-    noArvore *pai = NULL;
-    noArvore *filho = NULL;
 
-    if(noAtual->filhoEsquerda == NULL){
-        filho = noAtual->filhoDireita;
-        }else if(noAtual->filhoDireita == NULL){
-            filho = noAtual->filhoEsquerda;
-        }else{
-            pai = noAtual;
-            filho = noAtual->filhoEsquerda;
-            while(filho->filhoDireita != NULL){
-                pai = filho;
-                filho = filho->filhoDireita;
+//Funçao escrita com auxilio do GEPETO
+int excluirNo(arvoreBinaria *raiz, int dado)
+{
+    if (raiz == NULL)
+    {
+        return 0;
+    }
+    noArvore *atual = *raiz;
+    noArvore *anterior = NULL;
+
+    while (atual != NULL)
+    {
+        if (dado == atual->dado)
+        {
+            if (atual->filhoEsquerda == NULL && atual->filhoDireita == NULL)
+            {
+                if (anterior == NULL)
+                {
+                    free(atual);
+                    *raiz = NULL;
+                }
+                else
+                {
+                    if (anterior->filhoEsquerda == atual)
+                    {
+                        anterior->filhoEsquerda = NULL;
+                    }
+                    else
+                    {
+                        anterior->filhoDireita = NULL;
+                    }
+                    free(atual);
+                }
             }
-            if(pai != noAtual){
-                pai->filhoDireita = filho->filhoEsquerda;
-                filho->filhoEsquerda = noAtual->filhoEsquerda;
+            else if (atual->filhoEsquerda == NULL)
+            {
+                if (anterior == NULL)
+                {
+                    *raiz = atual->filhoDireita;
+                }
+                else
+                {
+                    if (anterior->filhoEsquerda == atual)
+                    {
+                        anterior->filhoEsquerda = atual->filhoDireita;
+                    }
+                    else
+                    {
+                        anterior->filhoDireita = atual->filhoDireita;
+                    }
+                }
+                free(atual);
             }
-            filho->filhoDireita = noAtual->filhoDireita;
+            else if (atual->filhoDireita == NULL)
+            {
+                if (anterior == NULL)
+                {
+                    *raiz = atual->filhoEsquerda;
+                }
+                else
+                {
+                    if (anterior->filhoEsquerda == atual)
+                    {
+                        anterior->filhoEsquerda = atual->filhoEsquerda;
+                    }
+                    else
+                    {
+                        anterior->filhoDireita = atual->filhoEsquerda;
+                    }
+                }
+                free(atual);
+            }
+            else
+            {
+                noArvore *sucessor = atual->filhoDireita;
+                while (sucessor->filhoEsquerda != NULL)
+                {
+                    sucessor = sucessor->filhoEsquerda;
+                }
+                int aux = sucessor->dado;
+                excluirNo(raiz, sucessor->dado);
+                atual->dado = aux;
+            }
+            return 1;
         }
-        if(pai == NULL){
-            free(noAtual);
-            *raiz = filho;
-        }else{
-            if(noAtual == pai->filhoDireita){
-                pai->filhoDireita = filho;
-            }else{
-                pai->filhoEsquerda = filho;
-            }
-            free(noAtual);
+        anterior = atual;
+        if (dado > atual->dado)
+        {
+            atual = atual->filhoDireita;
         }
-        return 1;       
-        
+        else
+        {
+            atual = atual->filhoEsquerda;
+        }
+    }
 }
 
-void imprimeArvorePreOrdem(noArvore *raiz){
-    if(raiz != NULL){
+void imprimeArvorePreOrdem(noArvore *raiz)
+{
+    if (raiz != NULL)
+    {
         printf("%d ", raiz->dado);
         imprimeArvorePreOrdem(raiz->filhoEsquerda);
         imprimeArvorePreOrdem(raiz->filhoDireita);
     }
 }
 
-
-int main(void){
+int main(void)
+{
     arvoreBinaria *raiz = criarArvoreBinaria();
     inserirNo(raiz, 10);
     inserirNo(raiz, 5);
@@ -205,16 +286,18 @@ int main(void){
     printf("\n");
 
     noArvore *no = buscarNo(raiz, 15);
-    if(no != NULL){
+    if (no != NULL)
+    {
         printf("Nó encontrado: %d\n", no->dado);
-    }else{
+    }
+    else
+    {
         printf("Nó não encontrado.\n");
     }
-    
-    excluirNo(raiz,15);
+
+    excluirNo(raiz, 15);
     imprimeArvorePreOrdem(*raiz);
     printf("\n");
 
     return 0;
 }
-    
